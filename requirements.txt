@@ -1,1 +1,2 @@
 openai
+opencv-python-headless
