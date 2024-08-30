@@ -50,7 +50,6 @@ for index, region in enumerate(audio_regions):
     # region's metadata can also be used with the `save` method
     region_filename = 'region_{meta.start:.3f}-{meta.end:.3f}.wav'
     region_filepath = region.save(f'{data_dir}{region_filename}')
-    print('region saved as: {}'.format(region_filepath))
 
     region_file = open(region_filepath, 'rb')
     try:
@@ -72,5 +71,6 @@ for index, region in enumerate(audio_regions):
     subtitles.append(srt.Subtitle(index+1, start=start_time, end=end_time,
                                   content=transcription.text))
 
-with open(f'{data_dir}{srt_filename}', 'w') as srt_file:
-    srt_file.write(srt.compose(subtitles))
+if subtitles:
+    with open(f'{data_dir}{srt_filename}', 'w') as srt_file:
+        srt_file.write(srt.compose(subtitles))

@@ -1,29 +1,44 @@
 from moviepy.editor import VideoFileClip
 from openai import OpenAI
+import argparse
+import os
 
-data_dir = 'local_data/'
-video_filename = 'test.MOV'
-audio_filename = 'test.wav'
+
+parser = argparse.ArgumentParser(description='Generate subtitles for a video')
+parser.add_argument('--data_dir', type=str, default='local_data/')
+parser.add_argument('--video_filename', type=str, default='test.MOV')
+parser.add_argument('--srt_filename', type=str, default='test_full.srt')
+parser.add_argument('--min_duration', type=float, default=0.5)
+parser.add_argument('--max_duration', type=float, default=6)
+parser.add_argument('--max_silence', type=float, default=2)
+args = parser.parse_args()
+
+data_dir = args.data_dir
+video_filename = args.video_filename
+srt_filename = args.srt_filename
+wav_filename = 'tmp.wav'
 
 video = VideoFileClip(f'{data_dir}{video_filename}')
 audio = video.audio
-audio_filepath = f'{data_dir}{audio_filename}'
-audio.write_audiofile(audio_filepath)
+wav_filepath = f'{data_dir}{wav_filename}'
+audio.write_audiofile(wav_filepath)
+video.close()
 
-audio_file = open(audio_filepath, 'rb')
+wav_file = open(wav_filepath, 'rb')
 client = OpenAI()
 
 try:
     transcription = client.audio.transcriptions.create(
         model='whisper-1',
-        file=audio_file,
+        file=wav_file,
         prompt='min_duration: 0.5, max_duration: 6',
         language='zh',
         response_format='srt'
     )
+    with open(f'{data_dir}{srt_filename}', 'w') as srt_file:
+        srt_file.write(transcription)
 except Exception as e:
     print(e)
-
-srt_filename = 'test_full.srt'
-with open(f'{data_dir}{srt_filename}', 'w') as srt_file:
-    srt_file.write(transcription)
+finally:
+    wav_file.close()
+    os.remove(wav_filepath)
