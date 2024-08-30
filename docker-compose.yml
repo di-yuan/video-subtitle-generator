@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - local.env
+      - settings/local.env
     volumes:
       - ./video-subtitle-generator:/video-subtitle-generator
     ports:
