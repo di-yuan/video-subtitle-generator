@@ -8,9 +8,6 @@ parser = argparse.ArgumentParser(description='Generate subtitles for a video')
 parser.add_argument('--data_dir', type=str, default='local_data/')
 parser.add_argument('--video_filename', type=str, default='test.MOV')
 parser.add_argument('--srt_filename', type=str, default='test_full.srt')
-parser.add_argument('--min_duration', type=float, default=0.5)
-parser.add_argument('--max_duration', type=float, default=6)
-parser.add_argument('--max_silence', type=float, default=2)
 args = parser.parse_args()
 
 data_dir = args.data_dir
