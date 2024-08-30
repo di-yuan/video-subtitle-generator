@@ -1,3 +1,3 @@
 openai
-opencv-python-headless
 moviepy
+auditok
