@@ -1,1 +1,1 @@
-docker-compose run --rm --name dev_vsg devvsg
+docker-compose run --build --name dev_vsg --rm devvsg
