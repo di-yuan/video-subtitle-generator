@@ -1,9 +1,9 @@
 from moviepy.editor import VideoFileClip
 from openai import OpenAI
-from srt import parse as parse_srt
 from srt import Subtitle
-from srt import sort_and_reindex
 from srt import compose
+from srt import parse as parse_srt
+from srt import sort_and_reindex
 import argparse
 import datetime
 import os
