@@ -43,19 +43,6 @@ def parse_args():
     return parser.parse_args()
 
 
-args = parse_args()
-FILE_IN = args.input
-FILE_OUT = args.output
-XML_TEMPLATE = args.template
-
-cc = None
-if args.convert:
-    from opencc import OpenCC
-    cc = OpenCC(args.convert)
-
-framerate_tuple = (1001, 30000)  # default to 29.97fps
-
-
 # TIME STAMP CONVERSION METHODS
 
 def convert_xml_t(s, return_tuple=False):
@@ -96,6 +83,11 @@ def convert_srt_t(arr):
 
 
 def convert_text(__str):
+    cc = None
+    if args.convert:
+        from opencc import OpenCC
+        cc = OpenCC(args.convert)
+
     if cc:
         return cc.convert(__str)
     return __str
@@ -162,7 +154,7 @@ def process_output_srt(data):
 
 
 def process_output_fcpxml(data):
-    xml = ET.parse(XML_TEMPLATE)
+    xml = ET.parse(XML_TEMPLATE)  # load template
     root = xml.getroot()
 
     # check if template frameDuration is consistent with specified frame rate
@@ -226,28 +218,33 @@ def process_output_fcpxml(data):
             root, encoding='UTF-8', xml_declaration=False).decode('utf-8'))
 
 
-project_name = ''
+if __name__ == '__main__':
+    args = parse_args()
+    FILE_IN = args.input
+    FILE_OUT = args.output
+    XML_TEMPLATE = args.template
+    framerate_tuple = (1001, 30000)  # default to 29.97fps
 
-# convert input file to internal representation
-if FILE_IN.endswith('.srt'):
-    data = process_input_srt()
-elif FILE_IN.endswith('.fcpxml'):
-    data = process_input_fcpxml()
-else:
-    raise Exception(f'unsupported input file type: {FILE_IN}')
+    # convert input file to internal representation
+    if FILE_IN.endswith('.srt'):
+        data = process_input_srt()
+    elif FILE_IN.endswith('.fcpxml'):
+        data = process_input_fcpxml()
+    else:
+        raise Exception(f'unsupported input file type: {FILE_IN}')
 
-filename = os.path.basename(FILE_IN)
-event_name = args.event_name
-project_name, _ = os.path.splitext(filename)
+    filename = os.path.basename(FILE_IN)
+    event_name = args.event_name
+    project_name, _ = os.path.splitext(filename)
 
-# apply global offset (if applicable)
-if args.offset:
-    data = [(x[0] + args.offset, x[1] + args.offset, x[2]) for x in data]
+    # apply global offset (if applicable)
+    if args.offset:
+        data = [(x[0] + args.offset, x[1] + args.offset, x[2]) for x in data]
 
-# convert internal representation to output
-if FILE_OUT.endswith('.srt'):
-    process_output_srt(data)
-elif FILE_OUT.endswith('.fcpxml'):
-    process_output_fcpxml(data)
-else:
-    raise Exception(f'unsupported output file type: {FILE_OUT}')
+    # convert internal representation to output
+    if FILE_OUT.endswith('.srt'):
+        process_output_srt(data)
+    elif FILE_OUT.endswith('.fcpxml'):
+        process_output_fcpxml(data)
+    else:
+        raise Exception(f'unsupported output file type: {FILE_OUT}')
