@@ -10,31 +10,40 @@ import copy
 import argparse
 import os
 
-parser = argparse.ArgumentParser(
-    description="Convert between .srt and .fcpxml files."
-)
-parser.add_argument(
-    '-i', '--input', required=True,
-    help="name for the input file (.srt or .fcpxml)")
-parser.add_argument(
-    '-o', '--output', required=True,
-    help="name for the output file (.srt or .fcpxml)")
-parser.add_argument(
-    '-c', '--convert',
-    help="(optional) to use OpenCC to convert between Simplified/Traditional Chinese. Please specify the OpenCC configurations (e.g., s2t, t2s)")
-parser.add_argument(
-    '-t', '--template', default='Template.xml',
-    help="(optional) to use a user-specific template file to generate .fcpxml. Default to 'Template.xml'")
-parser.add_argument(
-    '-fr', '--framerate', default=29.97, type=float,
-    help='(optional) framerate should be set in the template. This argument provides a sanity check. Default to 29.97fps')
-parser.add_argument(
-    '--offset', type=float,
-    help='(optional) move the entire timeline forward/backward from input to output. In seconds')
-parser.add_argument(
-    '-e', '--event_name', default='CC_XML', type=str)
-args = parser.parse_args()
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Convert between .srt and .fcpxml files."
+    )
+    parser.add_argument(
+        '-i', '--input', required=True,
+        help="name for the input file (.srt or .fcpxml)")
+    parser.add_argument(
+        '-o', '--output', required=True,
+        help="name for the output file (.srt or .fcpxml)")
+    parser.add_argument(
+        '-c', '--convert',
+        help="(optional) to use OpenCC to convert between Simplified/"
+        "Traditional Chinese. Please specify the OpenCC "
+        "configurations (e.g., s2t, t2s)")
+    parser.add_argument(
+        '-t', '--template', default='Template.xml',
+        help="(optional) to use a user-specific template file to generate "
+        ".fcpxml. Default to 'Template.xml'")
+    parser.add_argument(
+        '-fr', '--framerate', default=29.97, type=float,
+        help='(optional) framerate should be set in the template. This '
+        'argument provides a sanity check. Default to 29.97fps')
+    parser.add_argument(
+        '--offset', type=float,
+        help='(optional) move the entire timeline forward/backward'
+        'from input to output. In seconds')
+    parser.add_argument(
+        '-e', '--event_name', default='CC_XML', type=str)
+    return parser.parse_args()
+
+
+args = parse_args()
 FILE_IN = args.input
 FILE_OUT = args.output
 XML_TEMPLATE = args.template
@@ -78,7 +87,12 @@ def convert_t_srt(t):
 
 
 def convert_srt_t(arr):
-    return float(arr[0]) * 3600. + float(arr[1]) * 60. + float(arr[2]) + float(arr[3]) / 1000.
+    return (
+        float(arr[0]) * 3600. +
+        float(arr[1]) * 60. +
+        float(arr[2]) +
+        float(arr[3]) / 1000.
+    )
 
 
 def convert_text(__str):
