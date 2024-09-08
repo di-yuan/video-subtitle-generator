@@ -14,10 +14,9 @@ def parse_args():
         description='Generate subtitles for a video')
     parser.add_argument('--data_dir', type=str, default='local_data/')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-vf', '--video_filename', type=str, default='test.MOV')
-    group.add_argument('-af', '--audio_filename', type=str, default='test.wav')
-    parser.add_argument(
-        '-sf', '--srt_filename', type=str, default='test_full.srt')
+    group.add_argument('-vf', '--video_filename', type=str)
+    group.add_argument('-af', '--audio_filename', type=str)
+    parser.add_argument('-sf', '--srt_filename', type=str)
     parser.add_argument(
         '-mt', '--merged_threshold', type=float, default=0.5,
         help='threshold(seconds) for merging subtitles')
@@ -108,7 +107,6 @@ def run():
     composed_srt = compose(sorted_subtitles)
     with open(f'{data_dir}{srt_filename}', 'w') as srt_file:
         srt_file.write(composed_srt)
-        print(composed_srt)
     print(f'{data_dir}{srt_filename} generated')
 
 
