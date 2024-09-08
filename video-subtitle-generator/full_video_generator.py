@@ -13,8 +13,11 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Generate subtitles for a video')
     parser.add_argument('--data_dir', type=str, default='local_data/')
-    parser.add_argument('--video_filename', type=str, default='test.MOV')
-    parser.add_argument('--srt_filename', type=str, default='test_full.srt')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-vf', '--video_filename', type=str, default='test.MOV')
+    group.add_argument('-af', '--audio_filename', type=str, default='test.wav')
+    parser.add_argument(
+        '-sf', '--srt_filename', type=str, default='test_full.srt')
     parser.add_argument(
         '-mt', '--merged_threshold', type=float, default=0.5,
         help='threshold(seconds) for merging subtitles')
@@ -38,41 +41,46 @@ def merge_subtitle(start: Subtitle, end: Subtitle) -> Subtitle:
     )
 
 
-if __name__ == '__main__':
+def run():
     args = parse_args()
 
     data_dir = args.data_dir
     video_filename = args.video_filename
     srt_filename = args.srt_filename
     fake_post = args.fake
-    wav_filename = 'tmp.wav'
+    tmp_audio_filename = 'tmp.wav'
+    tmp_audio_filepath = f'{data_dir}{tmp_audio_filename}'
 
-    video = VideoFileClip(f'{data_dir}{video_filename}')
-    audio = video.audio
-    wav_filepath = f'{data_dir}{wav_filename}'
-    audio.write_audiofile(wav_filepath)
-    video.close()
+    if video_filename:
+        video = VideoFileClip(f'{data_dir}{video_filename}')
+        audio = video.audio
+        audio_filepath = tmp_audio_filepath
+        audio.write_audiofile(audio_filepath)
+        video.close()
+    else:
+        audio_filepath = f'{data_dir}{args.audio_filename}'
 
     if fake_post:  # use local srt file
         if not os.path.exists(f'{data_dir}{srt_filename}'):
             raise FileNotFoundError(f'{data_dir}{srt_filename} not found')
         transcription = open(f'{data_dir}{srt_filename}', 'r').read()
     else:  # post to OpenAI API
-        wav_file = open(wav_filepath, 'rb')
+        audio_file = open(audio_filepath, 'rb')
         client = OpenAI()
         try:
             print('Transcribing...')
             transcription = client.audio.transcriptions.create(
                 model='whisper-1',
-                file=wav_file,
+                file=audio_file,
                 language='zh',
                 response_format='srt'
             )
         except Exception as e:
             print(e)
         finally:
-            wav_file.close()
-            os.remove(wav_filepath)
+            audio_file.close()
+            if os.path.exists(tmp_audio_filepath):
+                os.remove(tmp_audio_filepath)
 
     subtitles = [subtitle for subtitle in parse_srt(transcription)]
 
@@ -102,3 +110,7 @@ if __name__ == '__main__':
         srt_file.write(composed_srt)
         print(composed_srt)
     print(f'{data_dir}{srt_filename} generated')
+
+
+if __name__ == '__main__':
+    run()
