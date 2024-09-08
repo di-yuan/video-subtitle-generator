@@ -2,3 +2,4 @@ auditok
 moviepy
 openai
 srt
+opencc-python-reimplemented
