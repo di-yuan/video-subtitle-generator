@@ -1,7 +1,7 @@
 """
 SRT & FCPXML CONVERTER
 REQUIREMENT: OpenCC (pip install opencc-python-reimplemented)
-AUTHOR: MICHAEL HONG
+REF.: https://github.com/hysmichael/srt_fcpxml_converter/tree/master
 """
 
 import xml.etree.ElementTree as ET
